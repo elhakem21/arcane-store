@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arcane Automation | النظام الآمن</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #070714;
+            --bg-panel: #0f0f26;
+            --accent-purple: #8b5cf6;
+            --accent-glow: #a78bfa;
+            --cyber-green: #10b981;
+            --text-white: #ffffff;
+            --text-muted: #7e7e9a;
+            --border-line: #1b1b3a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-white); padding-bottom: 60px; }
+        
+        header { padding: 40px 20px; text-align: center; background: linear-gradient(180deg, #12092e 0%, var(--bg-main) 100%); }
+        header h1 { font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--accent-purple); }
+        header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
+
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+
+        /* أداة اختيار العملة وفلترة المنتجات المستوحاة من 1000269509_2.png */
+        .currency-box { background: var(--bg-panel); border: 1px solid var(--border-line); padding: 15px; border-radius: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .currency-box label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        .currency-box select { background: #161638; border: 1px solid var(--border-line); color: #fff; padding: 8px 12px; border-radius: 10px; outline: none; font-weight: bold; }
+
+        .filter-tags { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
+        .tag-btn { background: var(--bg-panel); border: 1px solid var(--border-line); color: var(--text-muted); padding: 10px 20px; border-radius: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap; }
+        .tag-btn.active { background: var(--accent-purple); color: #fff; border-color: var(--accent-glow); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+
+        /* منطقة جلب البيانات وحالة التحميل */
+        .loading-status { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.95rem; }
+        .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-purple); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .product-card { background: var(--bg-panel); border-radius: 18px; border: 1px solid var(--border-line); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
+        .product-card:hover { border-color: var(--accent-purple); transform: translateY(-2px); }
+        .card-top { padding: 20px 10px; text-align: center; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-line); }
+        .user-title { font-family: 'Courier New', monospace; font-size: 1.2rem; font-weight: bold; color: #fff; }
+        .card-body { padding: 15px; text-align: center; margin-top: auto; }
+        .price-text { color: var(--cyber-green); font-weight: 800; font-size: 1.1rem; margin-bottom: 12px; }
+
+        .btn-buy { background: var(--accent-purple); color: white; border: none; padding: 10px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        /* نافذة الدفع المفلترة النظيفة */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4,4,12,0.96); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #121230; border: 1px solid var(--border-line); border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .modal-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .modal-title i { color: var(--accent-purple); }
+
+        .payment-methods { display: flex; gap: 10px; margin-bottom: 15px; }
+        .pay-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid transparent; color: white; font-weight: bold; cursor: pointer; text-align: center; }
+        .pay-btn.vf { background: #e60000; }
+        .pay-btn.et { background: #7dae37; }
+        .pay-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input { width: 100%; background: #191942; border: 1px solid var(--border-line); padding: 12px; border-radius: 10px; color: #fff; outline: none; text-align: center; font-weight: bold; }
+
+        .btn-submit-order { background: var(--cyber-green); color: white; border: none; padding: 14px; width: 100%; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+
+        /* توست الإشعارات العصري Toast Notification */
+        .toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; pointer-events: none; }
+        .toast { background: #1e1e46; border-right: 4px solid var(--accent-purple); color: #fff; padding: 15px; border-radius: 10px; font-size: 0.85rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ARCANE AUTOMATION</h1>
+        <p>نظام البيع والتسليم الفوري الآمن لقاعدة البيانات السحابية</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- صندوق العملة التفاعلي الديناميكي -->
+        <div class="currency-box">
+            <div>
+                <label>العملة المعروضة</label>
+                <span id="currencyLabel" style="font-size:0.75rem; color:var(--text-muted);">تحديث تلقائي من السيرفر</span>
+            </div>
+            <select id="currencySelector" onchange="updatePrices()">
+                <option value="EGP">EGP (ج.م) جنيه مصري</option>
+                <option value="USD">USD ($) دولار أمريكي</option>
+            </select>
+        </div>
+
+        <!-- أزرار الفلترة التصنيفية -->
+        <div class="filter-tags">
+            <button class="tag-btn active" onclick="filterCategory('الكل')">الكل</button>
+            <button class="tag-btn" onclick="filterCategory('ثلاثي')">ثلاثي</button>
+            <button class="tag-btn" onclick="filterCategory('رباعي')">رباعي</button>
+            <button class="tag-btn" onclick="filterCategory('خماسي')">خماسي</button>
+        </div>
+
+        <!-- مؤشر التحميل الأصلي لحين استجابة السيرفر الخلفي -->
+        <div id="loadingArea" class="loading-status">
+            <div class="spinner"></div>
+            <p>جاري جلب المنتجات من السيرفر السحابي الآمن...</p>
+        </div>
+
+        <div id="productsGrid" class="products-grid" style="display:none;"></div>
+
+    </div>
+
+    <!-- نافذة الدفع والتأكيد المعزولة -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title"><i class="fa-solid fa-shield-halved"></i> طلب منتج معزول آمن</div>
+            
+            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">وسيلة التحويل الكاش المتاحة:</div>
+            <div class="payment-methods">
+                <div id="m_vf" class="pay-btn vf active" onclick="selectMethod('vf')">فودافون كاش</div>
+                <div id="m_et" class="pay-btn et" onclick="selectMethod('et')">اتصالات كاش</div>
+            </div>
+
+            <div class="input-group">
+                <label>رقم المحفظة التي ستحول إليها</label>
+                <input type="text" id="targetWalletDisplay" readonly>
+            </div>
+
+            <div class="input-group">
+                <label>المبلغ المطلوب إرساله</label>
+                <input type="text" id="amountDisplay" readonly style="color:var(--cyber-green);">
+            </div>
+
+            <div class="input-group">
+                <label>رقم محفظتك الإلكترونية المرسل منها (تأكيد مالي)</label>
+                <input type="number" id="clientWalletInput" placeholder="01xxxxxxxxx">
+            </div>
+
+            <button class="btn-submit-order" onclick="submitOrderToServer()">إرسال الطلب للمراجعة</button>
+            <button onclick="closeModal()" style="width:100%; background:transparent; border:none; color:var(--text-muted); margin-top:12px; cursor:pointer; font-size:0.8rem;">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        const API_BASE = "http://localhost:3000/api"; // عنوان الـ Backend الخاص بك
+        let serverProducts = [];
+        let exchangeRate = 48.50;
+        let selectedProduct = null;
+        let selectedMethod = 'vf';
+
+        const wallets = { vf: "01008044897", et: "01142808136" };
+
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fa-solid fa-circle-info" style="color:var(--accent-glow);"></i> <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        // جلب البيانات الفعلي من الـ Node.js Backend بدلاً من المخزن المحلي للمتصفح
+        async function fetchProducts() {
+            try {
+                const res = await fetch(`${API_BASE}/products`);
+                const data = await res.json();
+                serverProducts = data.users;
+                exchangeRate = data.rate;
+                
+                document.getElementById('loadingArea').style.display = 'none';
+                document.getElementById('productsGrid').style.display = 'grid';
+                renderProducts('الكل');
+            } catch (err) {
+                document.getElementById('loadingArea').innerHTML = "<p style='color:#ef4444;'>فشل الاتصال بخادم الباك إند الحقيقي. تأكد من تشغيل السيرفر!</p>";
+            }
+        }
+
+        function renderProducts(category) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+            const currency = document.getElementById('currencySelector').value;
+
+            const filtered = serverProducts.filter(p => category === 'الكل' || p.type === category);
+
+            filtered.forEach(p => {
+                const finalPrice = currency === 'EGP' ? (p.price_usd * exchangeRate).toFixed(0) + " ج.م" : p.price_usd + " $";
+                grid.insertAdjacentHTML('beforeend', `
+                    <div class="product-card">
+                        <div class="card-top">
+                            <div class="user-title">@${p.maskedName}</div>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">${p.type}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="price-text">${finalPrice}</div>
+                            <button class="btn-buy" onclick="openOrderModal('${p.id}')">شراء آمن</button>
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        function filterCategory(cat) {
+            document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            renderProducts(cat);
+        }
+
+        function updatePrices() {
+            renderProducts(document.querySelector('.tag-btn.active').innerText);
+        }
+
+        function openOrderModal(id) {
+            selectedProduct = serverProducts.find(p => p.id === id);
+            const currency = document.getElementById('currencySelector').value;
+            
+            document.getElementById('amountDisplay').value = currency === 'EGP' ? 
+                (selectedProduct.price_usd * exchangeRate).toFixed(0) + " ج.م" : selectedProduct.price_usd + " $";
+            
+            selectMethod('vf');
+            document.getElementById('paymentModal').style.display = 'flex';
+        }
+
+        function selectMethod(m) {
+            selectedMethod = m;
+            document.getElementById('m_vf').classList.toggle('active', m === 'vf');
+            document.getElementById('m_et').classList.toggle('active', m === 'et');
+            document.getElementById('targetWalletDisplay').value = wallets[m];
+        }
+
+        function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
+
+        // إرسال كود التحقق والطلب الآمن إلى الـ Node.js Backend بدلاً من تسليمه مباشرة في المتصفح تلقائياً
+        async function submitOrderToServer() {
+            const clientWallet = document.getElementById('clientWalletInput').value;
+            if(!clientWallet || clientWallet.length < 10) {
+                showToast("الرجاء إدخال رقم محفظة صحيح لتأكيد التحويل المالي!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/orders/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        productId: selectedProduct.id,
+                        userWallet: clientWallet,
+                        method: selectedMethod
+                    })
+                });
+                const result = await response.json();
+                closeModal();
+                showToast(result.message);
+            } catch (err) {
+                showToast("حدث خطأ أثناء الاتصال بالسيرفر لتسجيل الطلب.");
+            }
+        }
+
+        window.onload = fetchProducts;
+    </script>
+</body>
+</html>
