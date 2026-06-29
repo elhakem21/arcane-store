@@ -26,7 +26,6 @@
 
         .container { padding: 15px; max-width: 500px; margin: auto; }
 
-        /* أداة اختيار العملة وفلترة المنتجات المستوحاة من 1000269509_2.png */
         .currency-box { background: var(--bg-panel); border: 1px solid var(--border-line); padding: 15px; border-radius: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
         .currency-box label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
         .currency-box select { background: #161638; border: 1px solid var(--border-line); color: #fff; padding: 8px 12px; border-radius: 10px; outline: none; font-weight: bold; }
@@ -35,7 +34,6 @@
         .tag-btn { background: var(--bg-panel); border: 1px solid var(--border-line); color: var(--text-muted); padding: 10px 20px; border-radius: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap; }
         .tag-btn.active { background: var(--accent-purple); color: #fff; border-color: var(--accent-glow); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
 
-        /* منطقة جلب البيانات وحالة التحميل */
         .loading-status { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.95rem; }
         .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-purple); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -50,7 +48,6 @@
 
         .btn-buy { background: var(--accent-purple); color: white; border: none; padding: 10px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
-        /* نافذة الدفع المفلترة النظيفة */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4,4,12,0.96); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: #121230; border: 1px solid var(--border-line); border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         .modal-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
@@ -68,7 +65,6 @@
 
         .btn-submit-order { background: var(--cyber-green); color: white; border: none; padding: 14px; width: 100%; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
 
-        /* توست الإشعارات العصري Toast Notification */
         .toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; pointer-events: none; }
         .toast { background: #1e1e46; border-right: 4px solid var(--accent-purple); color: #fff; padding: 15px; border-radius: 10px; font-size: 0.85rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
@@ -83,7 +79,6 @@
 
     <div class="container">
         
-        <!-- صندوق العملة التفاعلي الديناميكي -->
         <div class="currency-box">
             <div>
                 <label>العملة المعروضة</label>
@@ -95,25 +90,22 @@
             </select>
         </div>
 
-        <!-- أزرار الفلترة التصنيفية -->
         <div class="filter-tags">
-            <button class="tag-btn active" onclick="filterCategory('الكل')">الكل</button>
+            <button class="tag-btn active" id="btn-all" onclick="filterCategory('الكل')">الكل</button>
             <button class="tag-btn" onclick="filterCategory('ثلاثي')">ثلاثي</button>
             <button class="tag-btn" onclick="filterCategory('رباعي')">رباعي</button>
             <button class="tag-btn" onclick="filterCategory('خماسي')">خماسي</button>
         </div>
 
-        <!-- مؤشر التحميل الأصلي لحين استجابة السيرفر الخلفي -->
         <div id="loadingArea" class="loading-status">
             <div class="spinner"></div>
-            <p>جاري جلب المنتجات من السيرفر السحابي الآمن...</p>
+            <p>جاري جلب جميع المنتجات من السيرفر السحابي الآمن...</p>
         </div>
 
         <div id="productsGrid" class="products-grid" style="display:none;"></div>
 
     </div>
 
-    <!-- نافذة الدفع والتأكيد المعزولة -->
     <div id="paymentModal" class="modal">
         <div class="modal-content">
             <div class="modal-title"><i class="fa-solid fa-shield-halved"></i> طلب منتج معزول آمن</div>
@@ -147,7 +139,7 @@
     <div id="toastContainer" class="toast-container"></div>
 
     <script>
-        const API_BASE = "https://arcane-store-peach.vercel.app/api"; // عنوان الـ Backend الخاص بك
+        const API_BASE = "https://arcane-store-peach.vercel.app/api"; 
         let serverProducts = [];
         let exchangeRate = 48.50;
         let selectedProduct = null;
@@ -164,19 +156,22 @@
             setTimeout(() => toast.remove(), 4000);
         }
 
-        // جلب البيانات الفعلي من الـ Node.js Backend بدلاً من المخزن المحلي للمتصفح
         async function fetchProducts() {
             try {
                 const res = await fetch(`${API_BASE}/products`);
                 const data = await res.json();
-                serverProducts = data.users;
-                exchangeRate = data.rate;
+                
+                // التأكد من جلب مصفوفة اليوزرات كاملة بدون استثناء
+                serverProducts = data.users || data; 
+                exchangeRate = data.rate || 48.50;
                 
                 document.getElementById('loadingArea').style.display = 'none';
                 document.getElementById('productsGrid').style.display = 'grid';
+                
+                // فرض عرض كافة المنتجات فور التحميل
                 renderProducts('الكل');
             } catch (err) {
-                document.getElementById('loadingArea').innerHTML = "<p style='color:#ef4444;'>فشل الاتصال بخادم الباك إند الحقيقي. تأكد من تشغيل السيرفر!</p>";
+                document.getElementById('loadingArea').innerHTML = "<p style='color:#ef4444;'>فشل جلب البيانات. تأكد من تهيئة اليوزرات بشكل صحيح داخل السيرفر.</p>";
             }
         }
 
@@ -185,15 +180,21 @@
             grid.innerHTML = '';
             const currency = document.getElementById('currencySelector').value;
 
+            // إذا كانت الفئة 'الكل' يتم تعطيل التصفية لعرض القائمة كاملة، عدا ذلك نطبق الفلترة
             const filtered = serverProducts.filter(p => category === 'الكل' || p.type === category);
+
+            if(filtered.length === 0) {
+                grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:20px;'>لا توجد يوزرات متوفرة في هذا القسم حالياً.</p>";
+                return;
+            }
 
             filtered.forEach(p => {
                 const finalPrice = currency === 'EGP' ? (p.price_usd * exchangeRate).toFixed(0) + " ج.م" : p.price_usd + " $";
                 grid.insertAdjacentHTML('beforeend', `
                     <div class="product-card">
                         <div class="card-top">
-                            <div class="user-title">@${p.maskedName}</div>
-                            <span style="font-size:0.7rem; color:var(--text-muted);">${p.type}</span>
+                            <div class="user-title">@${p.maskedName || p.username || 'unknown'}</div>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">${p.type || 'عام'}</span>
                         </div>
                         <div class="card-body">
                             <div class="price-text">${finalPrice}</div>
@@ -206,12 +207,15 @@
 
         function filterCategory(cat) {
             document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(event) {
+                event.currentTarget.classList.add('active');
+            }
             renderProducts(cat);
         }
 
         function updatePrices() {
-            renderProducts(document.querySelector('.tag-btn.active').innerText);
+            const activeBtn = document.querySelector('.tag-btn.active');
+            renderProducts(activeBtn ? activeBtn.innerText : 'الكل');
         }
 
         function openOrderModal(id) {
@@ -234,7 +238,6 @@
 
         function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
 
-        // إرسال كود التحقق والطلب الآمن إلى الـ Node.js Backend بدلاً من تسليمه مباشرة في المتصفح تلقائياً
         async function submitOrderToServer() {
             const clientWallet = document.getElementById('clientWalletInput').value;
             if(!clientWallet || clientWallet.length < 10) {
@@ -264,3 +267,4 @@
     </script>
 </body>
 </html>
+
