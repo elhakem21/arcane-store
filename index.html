@@ -3,149 +3,288 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcane Automation | النظام الآمن</title>
+    <title>Arcane Store | المتجر الرقمي المتكامل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
             --bg-main: #070714;
             --bg-panel: #0f0f26;
-            --accent-purple: #8b5cf6;
-            --accent-glow: #a78bfa;
+            --accent-pink: #e91e63;
+            --accent-glow: #ff6097;
             --cyber-green: #10b981;
             --text-white: #ffffff;
             --text-muted: #7e7e9a;
             --border-line: #1b1b3a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-white); padding-bottom: 60px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-white); padding-bottom: 60px; overflow-x: hidden; }
         
-        header { padding: 40px 20px; text-align: center; background: linear-gradient(180deg, #12092e 0%, var(--bg-main) 100%); }
-        header h1 { font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px var(--accent-purple); }
-        header p { color: var(--text-muted); font-size: 0.85rem; margin-top: 8px; }
+        /* تأثيرات بصرية وإضاءة نيون للهيدر */
+        header { 
+            background: linear-gradient(135deg, #180f2d, var(--bg-main));
+            padding: 40px 20px; 
+            text-align: center; 
+            border-bottom: 1px solid var(--border-line);
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(233,30,99,0.1) 0%, transparent 60%);
+            z-index: 1; pointer-events: none;
+        }
+        header h1 { font-size: 2rem; font-weight: 900; letter-spacing: 1px; color: #fff; text-shadow: 0 0 20px var(--accent-pink); position: relative; z-index: 2; }
+        header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 6px; position: relative; z-index: 2; }
 
         .container { padding: 15px; max-width: 500px; margin: auto; }
 
-        .currency-box { background: var(--bg-panel); border: 1px solid var(--border-line); padding: 15px; border-radius: 18px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .currency-box label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
-        .currency-box select { background: #161638; border: 1px solid var(--border-line); color: #fff; padding: 8px 12px; border-radius: 10px; outline: none; font-weight: bold; }
+        /* شريط التبديل بين الأقسام الرئيسية */
+        .section-nav { display: flex; gap: 8px; margin: 20px 0; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+        .section-nav::-webkit-scrollbar { display: none; }
+        .nav-btn { background: var(--bg-panel); color: var(--text-muted); border: 1px solid var(--border-line); padding: 12px 18px; border-radius: 14px; font-weight: bold; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; }
+        .nav-btn.active { background: var(--accent-pink); color: white; border-color: var(--accent-glow); box-shadow: 0 0 15px rgba(233, 30, 99, 0.5); transform: scale(1.03); }
 
-        .filter-tags { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
-        .tag-btn { background: var(--bg-panel); border: 1px solid var(--border-line); color: var(--text-muted); padding: 10px 20px; border-radius: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-        .tag-btn.active { background: var(--accent-purple); color: #fff; border-color: var(--accent-glow); box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); }
+        /* محرك الفلترة الفرعي داخل قسم اليوزرات */
+        .filter-tags { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .filter-tags::-webkit-scrollbar { display: none; }
+        .tag-btn { background: #131332; border: 1px solid var(--border-line); color: var(--text-muted); padding: 8px 16px; border-radius: 10px; font-weight: bold; font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .tag-btn.active { background: transparent; color: #fff; border-color: var(--accent-pink); box-shadow: inset 0 0 8px rgba(233, 30, 99, 0.3); }
 
-        .loading-status { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.95rem; }
-        .spinner { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid var(--accent-purple); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        /* محتوى الأقسام مع أنيميشن الدخول النظيف */
+        .store-section { display: none; animation: fadeIn 0.4s ease-out forwards; }
+        .store-section.active { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .full-width-grid { grid-column: span 2; display: flex; flex-direction: column; gap: 12px; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* حيز التحميل التفاعلي */
+        .loading-status { grid-column: span 2; text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 0.9rem; }
+        .spinner { border: 3px solid rgba(255,255,255,0.05); border-top: 3px solid var(--accent-pink); border-radius: 50%; width: 26px; height: 26px; animation: spin 0.8s linear infinite; margin: 0 auto 12px auto; box-shadow: 0 0 10px rgba(233,30,99,0.2); }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .products-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .product-card { background: var(--bg-panel); border-radius: 18px; border: 1px solid var(--border-line); overflow: hidden; display: flex; flex-direction: column; transition: 0.3s; }
-        .product-card:hover { border-color: var(--accent-purple); transform: translateY(-2px); }
-        .card-top { padding: 20px 10px; text-align: center; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-line); }
-        .user-title { font-family: 'Courier New', monospace; font-size: 1.2rem; font-weight: bold; color: #fff; }
-        .card-body { padding: 15px; text-align: center; margin-top: auto; }
-        .price-text { color: var(--cyber-green); font-weight: 800; font-size: 1.1rem; margin-bottom: 12px; }
+        /* بطاقات عرض المنتجات والخدمات */
+        .product-card { background: var(--bg-panel); border-radius: 18px; overflow: hidden; border: 1px solid var(--border-line); display: flex; flex-direction: column; position: relative; transition: all 0.3s ease; }
+        .product-card:hover { border-color: var(--accent-pink); transform: translateY(-3px); box-shadow: 0 8px 20px rgba(233, 30, 99, 0.15); }
+        
+        .card-top { width: 100%; aspect-ratio: 1.3/1; background: linear-gradient(145deg, #0a0a1a, #151530); display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 1px solid var(--border-line); padding: 10px; text-align: center; position: relative; }
+        .card-top i { font-size: 1.8rem; margin-bottom: 8px; color: var(--accent-glow); filter: drop-shadow(0 0 8px var(--accent-pink)); }
+        
+        .user-tag { font-size: 1.1rem; font-weight: 800; font-family: 'Courier New', monospace; color: #fff; background: rgba(0,0,0,0.4); padding: 4px 12px; border-radius: 8px; border: 1px dashed rgba(233, 30, 99, 0.5); letter-spacing: 0.5px; }
+        .service-title { font-size: 0.95rem; font-weight: bold; color: #fff; }
+        .service-badge { background: rgba(255,255,255,0.04); color: var(--text-muted); font-size: 0.7rem; padding: 3px 10px; border-radius: 10px; margin-top: 6px; border: 1px solid rgba(255,255,255,0.02); }
 
-        .btn-buy { background: var(--accent-purple); color: white; border: none; padding: 10px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .card-body { padding: 12px; text-align: center; margin-top: auto; }
+        .price-tag { color: var(--cyber-green); font-weight: 800; font-size: 1.2rem; margin-bottom: 8px; text-shadow: 0 0 10px rgba(16,185,129,0.1); }
+        .price-tag span { font-size: 0.8rem; color: var(--text-muted); font-weight: normal; }
+        
+        .btn-action { background: linear-gradient(90deg, var(--accent-pink), #ff4081); color: white; border: none; padding: 11px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(233, 30, 99, 0.25); transition: 0.2s; }
+        .btn-action:hover { filter: brightness(1.1); box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4,4,12,0.96); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: #121230; border: 1px solid var(--border-line); border-radius: 24px; padding: 25px; width: 100%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-        .modal-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .modal-title i { color: var(--accent-purple); }
+        /* بوابة دفع آمنة ومعزولة */
+        .payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(4, 4, 12, 0.96); z-index: 3000; overflow-y: auto; padding: 15px; padding-top: 40px; }
+        .modal-box { background: #11112a; border: 1px solid var(--border-line); border-radius: 24px; padding: 20px; width: 100%; max-width: 440px; margin: auto; box-shadow: 0 20px 45px rgba(0,0,0,0.8); animation: modalGlow 0.3s ease-out; }
+        @keyframes modalGlow { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .modal-header { display: flex; align-items: center; gap: 8px; margin-bottom: 18px; font-weight: bold; font-size: 1.05rem; }
+        .modal-header i { color: var(--accent-pink); filter: drop-shadow(0 0 5px var(--accent-pink)); }
 
-        .payment-methods { display: flex; gap: 10px; margin-bottom: 15px; }
-        .pay-btn { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid transparent; color: white; font-weight: bold; cursor: pointer; text-align: center; }
-        .pay-btn.vf { background: #e60000; }
-        .pay-btn.et { background: #7dae37; }
-        .pay-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .method-selector { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-weight: bold; }
+        
+        .cash-options { display: flex; gap: 10px; margin-bottom: 18px; }
+        .cash-btn { flex: 1; padding: 14px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: white; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
+        .cash-btn.vodafone { background: #e60000; }
+        .cash-btn.etisalat { background: #7dae37; }
+        .cash-btn.active { border-color: #fff; box-shadow: 0 0 15px rgba(255,255,255,0.3); transform: translateY(-1px); }
+        .cash-btn i { font-size: 1.3rem; margin-bottom: 4px; }
 
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; }
-        .input-group input { width: 100%; background: #191942; border: 1px solid var(--border-line); padding: 12px; border-radius: 10px; color: #fff; outline: none; text-align: center; font-weight: bold; }
+        .wallet-card { background: #171738; border: 1px solid var(--border-line); padding: 14px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; direction: ltr; }
+        .wallet-num { color: #fff; font-weight: bold; font-size: 1.2rem; letter-spacing: 1px; }
+        .btn-copy { color: var(--text-muted); cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .btn-copy:hover { color: #fff; transform: scale(1.1); }
 
-        .btn-submit-order { background: var(--cyber-green); color: white; border: none; padding: 14px; width: 100%; border-radius: 30px; font-weight: bold; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3); }
+        .steps-box { background: rgba(255,255,255,0.01); border: 1px solid var(--border-line); padding: 12px; border-radius: 12px; margin-bottom: 18px; }
+        .step-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: #cdcdde; margin-bottom: 6px; }
+        .step-num { background: var(--accent-pink); color: #fff; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; }
 
+        .field-title { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px; font-weight: bold; }
+        .input-wrapper { position: relative; margin-bottom: 15px; }
+        .input-wrapper input { width: 100%; background: #171738; border: 1px solid var(--border-line); padding: 12px; padding-left: 35px; border-radius: 12px; color: white; outline: none; text-align: right; font-weight: bold; transition: 0.2s; }
+        .input-wrapper input:focus { border-color: var(--accent-pink); box-shadow: 0 0 10px rgba(233,30,99,0.2); }
+        .input-wrapper i { position: absolute; left: 12px; top: 14px; color: var(--text-muted); }
+
+        .btn-pay-submit { background: var(--accent-pink); color: white; font-weight: bold; border: none; padding: 14px; width: 100%; border-radius: 30px; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); transition: 0.2s; }
+        .btn-pay-submit:hover { background: var(--accent-glow); box-shadow: 0 4px 18px rgba(233, 30, 99, 0.5); }
+
+        /* لوحة التسليم الفوري */
+        .delivery-panel { display: none; background: rgba(16, 185, 129, 0.12); border: 1px dashed var(--cyber-green); padding: 15px; border-radius: 14px; margin-top: 15px; text-align: center; }
+        .delivery-panel h4 { color: var(--cyber-green); margin-bottom: 5px; font-size: 0.95rem; }
+        .code-box { font-size: 1.3rem; font-weight: 900; color: #fff; background: #000; padding: 6px 14px; border-radius: 8px; display: inline-block; margin-top: 5px; border: 1px solid var(--cyber-green); font-family: monospace; }
+
+        /* سجل شراء المستخدم الفعلي واللحظي */
+        .user-history { border-top: 1px solid var(--border-line); margin-top: 30px; padding-top: 20px; }
+        .history-header { font-size: 1rem; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+        .history-header i { color: var(--accent-pink); }
+        .empty-history { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 15px; background: rgba(255,255,255,0.01); border-radius: 12px; border: 1px dashed var(--border-line); }
+        .history-container { display: flex; flex-direction: column; gap: 8px; }
+        .purchase-card { background: #12122d; border: 1px solid var(--border-line); padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+        .purchase-meta { color: var(--text-muted); font-size: 0.7rem; margin-top: 3px; }
+
+        /* نظام توست الإشعارات السريعة */
         .toast-container { position: fixed; bottom: 20px; right: 20px; left: 20px; z-index: 9999; pointer-events: none; }
-        .toast { background: #1e1e46; border-right: 4px solid var(--accent-purple); color: #fff; padding: 15px; border-radius: 10px; font-size: 0.85rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); margin-top: 10px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast { background: #1e1e46; border-right: 4px solid var(--accent-pink); color: #fff; padding: 14px; border-radius: 10px; font-size: 0.85rem; box-shadow: 0 5px 20px rgba(0,0,0,0.4); margin-top: 8px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <header>
         <h1>ARCANE AUTOMATION</h1>
-        <p>نظام البيع والتسليم الفوري الآمن لقاعدة البيانات السحابية</p>
+        <p>يوزرات مميزة ورشيق فوري وشحن ألعاب بأرخص الأسعار</p>
     </header>
 
     <div class="container">
         
-        <div class="currency-box">
-            <div>
-                <label>العملة المعروضة</label>
-                <span id="currencyLabel" style="font-size:0.75rem; color:var(--text-muted);">تحديث تلقائي من السيرفر</span>
+        <div class="section-nav">
+            <button class="nav-btn active" onclick="switchSection('sec-users')"><i class="fa-solid fa-at"></i> قسم اليوزرات</button>
+            <button class="nav-btn" onclick="switchSection('sec-games')"><i class="fa-solid fa-gamepad"></i> شحن الألعاب</button>
+            <button class="nav-btn" onclick="switchSection('sec-smm')"><i class="fa-solid fa-users-viewfinder"></i> رشق المنصات</button>
+            <button class="nav-btn" onclick="switchSection('sec-cards')"><i class="fa-solid fa-credit-card"></i> بطاقات الهدايا</button>
+        </div>
+
+        <!-- محتوى قسم اليوزرات مع الفلاتر الذكية المتكاملة مع السيرفر -->
+        <div id="sec-users" class="store-section active">
+            <div class="full-width-grid">
+                <div class="filter-tags">
+                    <button class="tag-btn active" onclick="filterCategory('الكل')">الكل</button>
+                    <button class="tag-btn" onclick="filterCategory('ثلاثي')">ثلاثي</button>
+                    <button class="tag-btn" onclick="filterCategory('رباعي')">رباعي</button>
+                    <button class="tag-btn" onclick="filterCategory('خماسي')">خماسي</button>
+                </div>
             </div>
-            <select id="currencySelector" onchange="updatePrices()">
-                <option value="EGP">EGP (ج.م) جنيه مصري</option>
-                <option value="USD">USD ($) دولار أمريكي</option>
-            </select>
+
+            <div id="loadingArea" class="loading-status">
+                <div class="spinner"></div>
+                <p>جاري مزامنة وجلب كافة اليوزرات الحية من السيرفر السحابي...</p>
+            </div>
+
+            <!-- حاوية رندرة كروت اليوزرات السحابية ديناميكياً -->
+            <div id="usersDynamicGrid" class="full-width-grid" style="display:none; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
         </div>
 
-        <div class="filter-tags">
-            <button class="tag-btn active" id="btn-all" onclick="filterCategory('الكل')">الكل</button>
-            <button class="tag-btn" onclick="filterCategory('ثلاثي')">ثلاثي</button>
-            <button class="tag-btn" onclick="filterCategory('رباعي')">رباعي</button>
-            <button class="tag-btn" onclick="filterCategory('خماسي')">خماسي</button>
+        <div id="sec-games" class="store-section">
+            <div class="product-card">
+                <div class="card-top"><i class="fa-solid fa-gun" style="color:#f57c00;"></i><span class="service-title">60 شدة ببجي موبايل</span><span class="service-badge">شحن فوري بالآيدي</span></div>
+                <div class="card-body"><div class="price-tag">0.85 $ <span>(40 ج.م)</span></div><button class="btn-action" onclick="openPayment('60 شدة ببجي', 0.85, 'API_PUBG_60')"><i class="fa-solid fa-bolt"></i> شحن سريع</button></div>
+            </div>
+            <div class="product-card">
+                <div class="card-top"><i class="fa-solid fa-fire" style="color:#d32f2f;"></i><span class="service-title">100 جوهرة فري فاير</span><span class="service-badge">شحن تلقائي معزز</span></div>
+                <div class="card-body"><div class="price-tag">0.75 $ <span>(36 ج.م)</span></div><button class="btn-action" onclick="openPayment('100 جوهرة فري فاير', 0.75, 'API_FF_100')"><i class="fa-solid fa-bolt"></i> شحن سريع</button></div>
+            </div>
         </div>
 
-        <div id="loadingArea" class="loading-status">
-            <div class="spinner"></div>
-            <p>جاري جلب جميع المنتجات من السيرفر السحابي الآمن...</p>
+        <div id="sec-smm" class="store-section">
+            <div class="product-card">
+                <div class="card-top"><i class="fa-brands fa-tiktok"></i><span class="service-title">1000 متابع تيك توك</span><span class="service-badge">ثبات عالي + ضمان</span></div>
+                <div class="card-body"><div class="price-tag">1.40 $ <span>(67 ج.م)</span></div><button class="btn-action" onclick="openPayment('1000 متابع تيك توك', 1.40, 'API_SMM_TK_1K')"><i class="fa-solid fa-share-nodes"></i> طلب الخدمة</button></div>
+            </div>
+            <div class="product-card">
+                <div class="card-top"><i class="fa-brands fa-instagram" style="color:#e1306c;"></i><span class="service-title">1000 لايك إنستجرام</span><span class="service-badge">إرسال سريع فوري</span></div>
+                <div class="card-body"><div class="price-tag">0.45 $ <span>(21 ج.م)</span></div><button class="btn-action" onclick="openPayment('1000 لايك انستا', 0.45, 'API_SMM_IG_1K')"><i class="fa-solid fa-share-nodes"></i> طلب الخدمة</button></div>
+            </div>
         </div>
 
-        <div id="productsGrid" class="products-grid" style="display:none;"></div>
+        <div id="sec-cards" class="store-section">
+            <div class="product-card">
+                <div class="card-top"><i class="fa-brands fa-google-play" style="color:#00c853;"></i><span class="service-title">جوجل بلاي 5$ أمريكية</span><span class="service-badge">كود رقمي عالمي</span></div>
+                <div class="card-body"><div class="price-tag">4.80 $ <span>(230 ج.م)</span></div><button class="btn-action" onclick="openPayment('جوجل بلاي 5$ أمريكي', 4.80, 'GPLAY_US_5')"><i class="fa-solid fa-cart-shopping"></i> شراء الكود</button></div>
+            </div>
+            <div class="product-card">
+                <div class="card-top"><i class="fa-brands fa-google-play" style="color:#0288d1;"></i><span class="service-title">جوجل بلاي 20 ر.س</span><span class="service-badge">بطاقة المتجر السعودي</span></div>
+                <div class="card-body"><div class="price-tag">5.20 $ <span>(250 ج.م)</span></div><button class="btn-action" onclick="openPayment('جوجل بلاي 20 رس سعودي', 5.20, 'GPLAY_SA_20')"><i class="fa-solid fa-cart-shopping"></i> شراء الكود</button></div>
+            </div>
+        </div>
+
+        <div class="user-history">
+            <div class="history-header"><i class="fa-solid fa-bag-shopping"></i> سجل مشترياتك الحالي</div>
+            <div id="emptyHistoryNotice" class="empty-history">لم تقم بشراء أي خدمات بعد في هذه الجلسة.</div>
+            <div id="historyLogs" class="history-container"></div>
+        </div>
 
     </div>
 
-    <div id="paymentModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title"><i class="fa-solid fa-shield-halved"></i> طلب منتج معزول آمن</div>
+    <!-- بوابة الدفع الآمنة والسريعة -->
+    <div id="payModal" class="payment-modal">
+        <div class="modal-box">
             
-            <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:8px;">وسيلة التحويل الكاش المتاحة:</div>
-            <div class="payment-methods">
-                <div id="m_vf" class="pay-btn vf active" onclick="selectMethod('vf')">فودافون كاش</div>
-                <div id="m_et" class="pay-btn et" onclick="selectMethod('et')">اتصالات كاش</div>
+            <div class="modal-header">
+                <i class="fa-solid fa-wallet"></i>
+                <span>بوابة الدفع الآمنة والسريعة</span>
             </div>
 
-            <div class="input-group">
-                <label>رقم المحفظة التي ستحول إليها</label>
-                <input type="text" id="targetWalletDisplay" readonly>
+            <div class="method-selector">اختر شبكة الكاش المفضلة لديك للتحويل:</div>
+            <div class="cash-options">
+                <div id="btnVf" class="cash-btn vodafone active" onclick="toggleCashMethod('vf')">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                    <span>فودافون كاش</span>
+                </div>
+                <div id="btnEt" class="cash-btn etisalat" onclick="toggleCashMethod('et')">
+                    <i class="fa-solid fa-building-columns"></i>
+                    <span>اتصالات كاش</span>
+                </div>
             </div>
 
-            <div class="input-group">
-                <label>المبلغ المطلوب إرساله</label>
-                <input type="text" id="amountDisplay" readonly style="color:var(--cyber-green);">
+            <div class="field-title" style="color:var(--accent-glow);"><i class="fa-solid fa-arrow-right-to-bracket"></i> رقم المحفظة المستهدفة للتحويل</div>
+            <div class="wallet-card">
+                <i class="fa-regular fa-copy btn-copy" onclick="copyNum()"></i>
+                <span id="displayWalletNumber" class="wallet-num">01008044897</span>
             </div>
 
-            <div class="input-group">
-                <label>رقم محفظتك الإلكترونية المرسل منها (تأكيد مالي)</label>
-                <input type="number" id="clientWalletInput" placeholder="01xxxxxxxxx">
+            <div class="steps-box">
+                <div class="step-row"><span class="step-num">١</span> قم بتحويل القيمة المطلوبة للرقم أعلاه</div>
+                <div class="step-row"><span class="step-num">٢</span> اكتب رقم محفظتك بالأسفل للتأكيد التلقائي</div>
             </div>
 
-            <button class="btn-submit-order" onclick="submitOrderToServer()">إرسال الطلب للمراجعة</button>
-            <button onclick="closeModal()" style="width:100%; background:transparent; border:none; color:var(--text-muted); margin-top:12px; cursor:pointer; font-size:0.8rem;">إغلاق</button>
+            <div class="field-title">المبلغ المطلوب إرساله</div>
+            <div class="input-wrapper">
+                <input type="text" id="payAmountInput" readonly style="color:var(--cyber-green);">
+                <i class="fa-solid fa-money-bill-wave"></i>
+            </div>
+
+            <div class="field-title">رقم محفظتك الإلكترونية المرسل منها</div>
+            <div class="input-wrapper">
+                <input type="number" id="userPhoneInput" placeholder="01xxxxxxxxx">
+                <i class="fa-solid fa-phone"></i>
+            </div>
+
+            <button class="btn-pay-submit" onclick="processOrder()"><i class="fa-solid fa-circle-check"></i> تأكيد الدفع والتسليم</button>
+
+            <div id="deliveryPanel" class="delivery-panel">
+                <h4>🎉 تم التحقق والتسليم بنجاح!</h4>
+                <p style="font-size:0.75rem; color:var(--text-muted);">بيانات المنتج المستلم آلياً:</p>
+                <div id="deliveryCode" class="code-box">@CODE</div>
+            </div>
+
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="closePayment()" style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:0.8rem;">إلغلاق والرجوع للمتجر</button>
+            </div>
         </div>
     </div>
 
     <div id="toastContainer" class="toast-container"></div>
 
     <script>
+        // رابط السيرفر السحابي الخاص بك على Vercel لربط اليوزرات بشكل كامل وحي
         const API_BASE = "https://arcane-store-peach.vercel.app/api"; 
+        
+        const providerWallets = { vf: "01008044897", et: "01142808136" };
         let serverProducts = [];
-        let exchangeRate = 48.50;
-        let selectedProduct = null;
+        let exchangeRate = 48.00;
+        let currentActiveProduct = null;
         let selectedMethod = 'vf';
-
-        const wallets = { vf: "01008044897", et: "01142808136" };
 
         function showToast(message) {
             const container = document.getElementById('toastContainer');
@@ -156,114 +295,170 @@
             setTimeout(() => toast.remove(), 4000);
         }
 
-        async function fetchProducts() {
+        // جلب اليوزرات الفعلي وبشكل كامل من الـ Node.js Backend على Vercel
+        async function fetchServerUsers() {
             try {
                 const res = await fetch(`${API_BASE}/products`);
                 const data = await res.json();
                 
-                // التأكد من جلب مصفوفة اليوزرات كاملة بدون استثناء
+                // جلب مصفوفة اليوزرات كاملة من السيرفر بدون أي تصفية ناقصة
                 serverProducts = data.users || data; 
-                exchangeRate = data.rate || 48.50;
+                exchangeRate = data.rate || 48.00;
                 
                 document.getElementById('loadingArea').style.display = 'none';
-                document.getElementById('productsGrid').style.display = 'grid';
-                
-                // فرض عرض كافة المنتجات فور التحميل
-                renderProducts('الكل');
+                document.getElementById('usersDynamicGrid').style.display = 'grid';
+                renderUsersSection('الكل');
             } catch (err) {
-                document.getElementById('loadingArea').innerHTML = "<p style='color:#ef4444;'>فشل جلب البيانات. تأكد من تهيئة اليوزرات بشكل صحيح داخل السيرفر.</p>";
+                document.getElementById('loadingArea').innerHTML = "<p style='color:#ef4444;'>فشل الاتصال بالسيرفر السحابي لجلب البضاعة الحالية.</p>";
             }
         }
 
-        function renderProducts(category) {
-            const grid = document.getElementById('productsGrid');
+        // رندرة يوزرات السيرفر مع الفلترة الذكية للأقسام
+        function renderUsersSection(category) {
+            const grid = document.getElementById('usersDynamicGrid');
             grid.innerHTML = '';
-            const currency = document.getElementById('currencySelector').value;
 
-            // إذا كانت الفئة 'الكل' يتم تعطيل التصفية لعرض القائمة كاملة، عدا ذلك نطبق الفلترة
-            const filtered = serverProducts.filter(p => category === 'الكل' || p.type === category);
+            const filtered = serverProducts.filter(p => category === 'الكل' || p.type.includes(category));
 
             if(filtered.length === 0) {
-                grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:var(--text-muted); padding:20px;'>لا توجد يوزرات متوفرة في هذا القسم حالياً.</p>";
+                grid.innerHTML = '<div style="grid-column: 1/-1;" class="empty-history">لا توجد يوزرات متوفرة في هذا القسم حالياً!</div>';
                 return;
             }
 
-            filtered.forEach(p => {
-                const finalPrice = currency === 'EGP' ? (p.price_usd * exchangeRate).toFixed(0) + " ج.م" : p.price_usd + " $";
-                grid.insertAdjacentHTML('beforeend', `
+            filtered.forEach(user => {
+                const finalPriceUsd = user.price_usd || user.p;
+                const egpPrice = (finalPriceUsd * exchangeRate).toFixed(0);
+                const displayTitle = user.maskedName || user.username || 'unknown';
+                
+                const html = `
                     <div class="product-card">
                         <div class="card-top">
-                            <div class="user-title">@${p.maskedName || p.username || 'unknown'}</div>
-                            <span style="font-size:0.7rem; color:var(--text-muted);">${p.type || 'عام'}</span>
+                            <i class="fa-solid fa-shield-cat"></i>
+                            <span class="user-tag">@${displayTitle}</span>
+                            <span class="service-badge">${user.type || 'عام'}</span>
                         </div>
                         <div class="card-body">
-                            <div class="price-text">${finalPrice}</div>
-                            <button class="btn-buy" onclick="openOrderModal('${p.id}')">شراء آمن</button>
+                            <div class="price-tag">${finalPriceUsd} $ <span>(${egpPrice} ج.م)</span></div>
+                            <button class="btn-action" onclick="openPayment('يوزر: @${displayTitle}', ${finalPriceUsd}, '${user.id}', true)">
+                                <i class="fa-solid fa-bolt"></i> تسليم آلي فوري
+                            </button>
                         </div>
                     </div>
-                `);
+                `;
+                grid.insertAdjacentHTML('beforeend', html);
             });
         }
 
         function filterCategory(cat) {
             document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
-            if(event) {
-                event.currentTarget.classList.add('active');
-            }
-            renderProducts(cat);
+            event.currentTarget.classList.add('active');
+            renderUsersSection(cat);
         }
 
-        function updatePrices() {
-            const activeBtn = document.querySelector('.tag-btn.active');
-            renderProducts(activeBtn ? activeBtn.innerText : 'الكل');
+        function switchSection(secId) {
+            document.querySelectorAll('.store-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(secId).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
-        function openOrderModal(id) {
-            selectedProduct = serverProducts.find(p => p.id === id);
-            const currency = document.getElementById('currencySelector').value;
+        function openPayment(name, priceUsd, id, isUserProduct = false) {
+            currentActiveProduct = { name, priceUsd, id, isUserProduct };
+            document.getElementById('deliveryPanel').style.display = 'none';
+            document.getElementById('userPhoneInput').value = '';
             
-            document.getElementById('amountDisplay').value = currency === 'EGP' ? 
-                (selectedProduct.price_usd * exchangeRate).toFixed(0) + " ج.م" : selectedProduct.price_usd + " $";
+            const calcEgp = (priceUsd * exchangeRate).toFixed(0);
+            document.getElementById('payAmountInput').value = `${calcEgp} جنيه مصري (${priceUsd} $)`;
             
-            selectMethod('vf');
-            document.getElementById('paymentModal').style.display = 'flex';
+            toggleCashMethod('vf'); 
+            document.getElementById('payModal').style.display = 'block';
         }
 
-        function selectMethod(m) {
-            selectedMethod = m;
-            document.getElementById('m_vf').classList.toggle('active', m === 'vf');
-            document.getElementById('m_et').classList.toggle('active', m === 'et');
-            document.getElementById('targetWalletDisplay').value = wallets[m];
+        function toggleCashMethod(method) {
+            selectedMethod = method;
+            document.getElementById('btnVf').classList.toggle('active', method === 'vf');
+            document.getElementById('btnEt').classList.toggle('active', method === 'et');
+            document.getElementById('displayWalletNumber').innerText = providerWallets[method];
         }
 
-        function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
+        function copyNum() {
+            const num = document.getElementById('displayWalletNumber').innerText;
+            navigator.clipboard.writeText(num);
+            showToast("تم نسخ رقم المحفظة بنجاح! 📋");
+        }
 
-        async function submitOrderToServer() {
-            const clientWallet = document.getElementById('clientWalletInput').value;
-            if(!clientWallet || clientWallet.length < 10) {
-                showToast("الرجاء إدخال رقم محفظة صحيح لتأكيد التحويل المالي!");
+        function closePayment() { document.getElementById('payModal').style.display = 'none'; }
+
+        // معالجة وإرسال الطلب بشكل رسمي وآمن تماماً للباك إند
+        async function processOrder() {
+            const clientPhone = document.getElementById('userPhoneInput').value;
+            if(!clientPhone || clientPhone.length < 10) {
+                showToast("الرجاء إدخال رقم محفظة إلكترونية صحيح لتأكيد المعاملة!");
                 return;
             }
 
             try {
+                // إرسال كود المراجعة والتحقق إلى السيرفر بدلاً من معالجته محلياً فقط
                 const response = await fetch(`${API_BASE}/orders/create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        productId: selectedProduct.id,
-                        userWallet: clientWallet,
+                        productId: currentActiveProduct.id,
+                        userWallet: clientPhone,
                         method: selectedMethod
                     })
                 });
+                
                 const result = await response.json();
-                closeModal();
-                showToast(result.message);
+                
+                let deliveryData = "✓ جاري المراجعة والإرسال";
+                if(currentActiveProduct.isUserProduct) {
+                    deliveryData = `@${currentActiveProduct.name.split('@')[1] || 'Done'}`;
+                    // فلترة اليوزر محلياً مؤقتاً لحين التحديث القادم من السيرفر
+                    serverProducts = serverProducts.filter(p => p.id !== currentActiveProduct.id);
+                    renderUsersSection('الكل');
+                } else {
+                    callHevoTeamAPIWithMargin(currentActiveProduct.id);
+                }
+
+                document.getElementById('deliveryCode').innerText = deliveryData;
+                document.getElementById('deliveryPanel').style.display = 'block';
+
+                addPurchaseToUserLogs(currentActiveProduct.name, currentActiveProduct.priceUsd, deliveryData);
+                showToast(result.message || "تم تسجيل طلبك وإرساله للمراجعة الآمنة!");
             } catch (err) {
-                showToast("حدث خطأ أثناء الاتصال بالسيرفر لتسجيل الطلب.");
+                showToast("حدث خطأ أثناء إرسال بيانات التأكيد المالي للسيرفر.");
             }
         }
 
-        window.onload = fetchProducts;
+        function callHevoTeamAPIWithMargin(apiServiceId) {
+            let hevoBasePriceUsd = 0.50; 
+            let myProfitMargin = 0.35; 
+            let finalClientPrice = hevoBasePriceUsd + myProfitMargin;
+            console.log(`API Margin Log: ${apiServiceId} | Final: ${finalClientPrice}$`);
+        }
+
+        function addPurchaseToUserLogs(name, price, receivedCode) {
+            document.getElementById('emptyHistoryNotice').style.display = 'none';
+            const logsContainer = document.getElementById('historyLogs');
+            const now = new Date();
+            const timeStr = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+
+            const html = `
+                <div class="purchase-card">
+                    <div>
+                        <span style="font-weight:bold; color:var(--accent-glow);">${name}</span>
+                        <div class="purchase-meta">الوقت: ${timeStr} | الحالة: <span style="color:#fff;">${receivedCode}</span></div>
+                    </div>
+                    <div style="color:var(--cyber-green); font-weight:bold;">+ ${price} $</div>
+                </div>
+            `;
+            logsContainer.insertAdjacentHTML('afterbegin', html);
+        }
+
+        window.onload = function() {
+            fetchServerUsers();
+        };
     </script>
 </body>
 </html>
